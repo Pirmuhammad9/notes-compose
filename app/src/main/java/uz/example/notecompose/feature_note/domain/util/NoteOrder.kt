@@ -12,6 +12,5 @@ sealed class NoteOrder(val orderType: OrderType) {
             is Color -> Color(orderType)
         }
     }
-
 }
 

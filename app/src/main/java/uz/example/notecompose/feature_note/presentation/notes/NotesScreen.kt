@@ -1,5 +1,6 @@
 package uz.example.notecompose.feature_note.presentation.notes
 
+import android.util.Log
 import androidx.compose.animation.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -33,7 +34,6 @@ fun NotesScreen(
     val scope = rememberCoroutineScope()
 
     Scaffold(
-        Modifier.background(Color.Black),
         floatingActionButton = {
             FloatingActionButton(onClick = {
                 navController.navigate(Screen.AddEditNoteScreen.route)
@@ -59,43 +59,43 @@ fun NotesScreen(
                 }) {
                     Icon(imageVector = Icons.Default.Sort, contentDescription = "Sort")
                 }
-                AnimatedVisibility(
-                    visible = state.isOrderSectionVisible,
-                    enter = fadeIn() + slideInVertically(),
-                    exit = fadeOut() + slideOutVertically()
-                ) {
-                    OrderSection(
+            }
+            AnimatedVisibility(
+                visible = state.isOrderSectionVisible,
+                enter = fadeIn() + slideInVertically(),
+                exit = fadeOut() + slideOutVertically()
+            ) {
+                OrderSection(
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    noteOrder = state.noteOrder,
+                    onOrderChange = {
+                        Log.d("WWWW", "CLICKED -> ${it}")
+                        viewModel.onEvent(NotesEvent.Order(it))
+                    }
+                )
+            }
+            Spacer(modifier = Modifier.height(16.dp))
+            LazyColumn(modifier = Modifier.fillMaxSize()) {
+                items(state.notes) { note ->
+                    NoteItem(
+                        note = note,
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(vertical = 16.dp),
-                        noteOrder = state.noteOrder,
-                        onOrderChange = {
-                            viewModel.onEvent(NotesEvent.Order(it))
-                        }
-                    )
-                }
-                Spacer(modifier = Modifier.height(16.dp))
-                LazyColumn(modifier = Modifier.fillMaxSize()) {
-                    items(state.notes) { note ->
-                        NoteItem(
-                            note = note,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clickable {},
-                            onDelete = {
-                                viewModel.onEvent(NotesEvent.DeleteNote(note))
-                                scope.launch {
-                                    val result = scaffoldState.snackbarHostState.showSnackbar(
-                                        message = "Note deleted",
-                                        actionLabel = "Undo"
-                                    )
-                                    if (result == SnackbarResult.ActionPerformed) {
-                                        viewModel.onEvent(NotesEvent.RestoreNote)
-                                    }
+                            .clickable {},
+                        onDelete = {
+                            viewModel.onEvent(NotesEvent.DeleteNote(note))
+                            scope.launch {
+                                val result = scaffoldState.snackbarHostState.showSnackbar(
+                                    message = "Note deleted",
+                                    actionLabel = "Undo"
+                                )
+                                if (result == SnackbarResult.ActionPerformed) {
+                                    viewModel.onEvent(NotesEvent.RestoreNote)
                                 }
-                            })
-                        Spacer(modifier = Modifier.height(16.dp))
-                    }
+                            }
+                        })
+                    Spacer(modifier = Modifier.height(16.dp))
                 }
             }
         }

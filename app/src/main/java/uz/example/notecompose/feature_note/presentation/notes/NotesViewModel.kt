@@ -1,5 +1,6 @@
 package uz.example.notecompose.feature_note.presentation.notes
 
+import android.util.Log
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
@@ -33,8 +34,10 @@ class NotesViewModel @Inject constructor(
         when (event) {
             is NotesEvent.Order -> {
                 if (state.value.noteOrder == event.noteOrder && state.value.noteOrder.orderType == event.noteOrder.orderType){
+                    Log.d("WWW", "ORDER WORKED")
                     return
                 }
+                _state.value = NotesState(noteOrder = event.noteOrder)
             }
             is NotesEvent.DeleteNote -> {
                 viewModelScope.launch {
